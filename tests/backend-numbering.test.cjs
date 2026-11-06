@@ -1,0 +1,320 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { DatabaseSync } = require('node:sqlite');
+const { createBackend } = require('../electron/backend');
+const { defaults, validateConfig } = require('../electron/numbering');
+const ORDERS = 'printshop_orders_v5', INVENTORY = 'printshop_inventory_v3';
+function openDb(file) {
+  const db = new DatabaseSync(file);
+  return { exec: s => db.exec(s), run: (s, ...p) => db.prepare(s).run(...p), get: (s, ...p) => db.prepare(s).get(...p), all: (s, ...p) => db.prepare(s).all(...p), close: () => db.close(), tx(fn) { db.exec('BEGIN'); try { const r = fn(); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; } } };
+}
+function fixture(t) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'printshop-numbering-'));
+  const b = createBackend({ dataDir: dir, openDb });
+  const manager = b.login('admin', '1234').token;
+  b.setOwnPassword(manager, 'strong-numbering-pass');
+  const users = b.listUsers(manager).users;
+  for (const [id, role] of [['finance', 'مدیر مالی'], ['clerk', 'کارشناس سفارشات'], ['store', 'انباردار']]) users.push({ id, username: id, name: id, role, _plain: 'strong-test-pass' });
+  assert.equal(b.saveUsers(manager, users).ok, true);
+  const tokens = Object.fromEntries(['finance', 'clerk', 'store'].map(id => [id, b.login(id, 'strong-test-pass').token]));
+  t.after(() => { b.close(); fs.rmSync(dir, { recursive: true, force: true }); });
+  const create = (id = 'o1') => {
+    const orders = b.get(manager, ORDERS).value || [];
+    const saved = b.set(manager, ORDERS, [...orders, { id, orderNumber: 'client-draft-9999', customerId: 'c1', customerName: 'آزمایشی', status: 'در انتظار تایید', quoteRev: 1, items: [{ id: 'i1', stage: 'ثبت سفارش', qty: 1, services: [] }], payments: [], history: [] }]);
+    assert.equal(saved.ok, true, saved.error); return saved.value.find(o => o.id === id);
+  };
+  const input = { currency: 'IRR', effectiveDate: '2026-10-22', materials: [], services: [{ id: 's1', description: 'چاپ', qty: 1, unit: 'نوبت', rate: 1000 }], offers: [], serviceMarkupPercent: 20, taxPercent: 10, discount: 0 };
+  const price = (id = 'o1', expectedRevision = 1, quote = input) => { const r = b.orderAction(tokens.finance, id, 'save_quote', { input: quote, expectedRevision }); assert.equal(r.ok, true, r.error); return r.order; };
+  const confirm = (id = 'o1') => { const r = b.orderAction(manager, id, 'confirm_customer', { evidence: 'تأیید مشتری' }); assert.equal(r.ok, true, r.error); return r; };
+  return { b, dir, manager, ...tokens, create, price, confirm, input };
+}
+test('numbering defaults are independent, read-only and manager-only; next can only move forward', t => {
+  const { b, manager, finance, clerk } = fixture(t);
+  const before = b._db.get('SELECT count(*) n FROM meta').n;
+  const settings = b.numberingSettings(manager).settings;
+  assert.deepEqual(settings, defaults());
+  assert.equal(b._db.get('SELECT count(*) n FROM meta').n, before);
+  assert.equal(b.numberingSettings(finance).code, 'FORBIDDEN');
+  assert.equal(b.saveNumberingSettings(clerk, settings).code, 'FORBIDDEN');
+  settings.order = { prefix: 'ORD-', start: 1001, next: 1100, width: 6, enabled: true };
+  assert.equal(b.saveNumberingSettings(manager, settings).ok, true);
+  settings.order.next = 1099; assert.equal(b.saveNumberingSettings(manager, settings).ok, false);
+  assert.equal(b.numberingSettings(manager).settings.order.next, 1100);
+  assert.ok(b.auditRows().some(r => r.action === 'numbering_settings_changed'));
+  for (const bad of [{ ...settings.order, width: 13 }, { ...settings.order, prefix: '\n' }, { ...settings.order, next: '1100' }, { ...settings.order, injected: true }]) assert.throws(() => validateConfig(bad));
+});
+test('a draft is suspended without a number; confirmation issues it; the number is immutable and the confirmed order undeletable; previews consume no number', t => {
+  const { b, manager, finance, create, confirm, input } = fixture(t);
+  const settings = b.numberingSettings(manager).settings;
+  settings.order.prefix = 'O-'; settings.order.width = 6;
+  assert.equal(b.saveNumberingSettings(manager, settings).ok, true);
+  const order = create();
+  assert.equal(order.orderNumber, '', 'a draft must not receive an order number');
+  assert.equal(b._db.get('SELECT count(*) n FROM numbering_reservations WHERE type = ?', 'order').n, 0, 'a draft must not reserve a number');
+  assert.equal(b.previewQuote(finance, order.id, input).ok, true);
+  assert.equal(b.numberingSettings(manager).settings.quote.next, 2001);
+  assert.equal(b.numberingSettings(manager).settings.order.next, 1001, 'previews must not consume an order number');
+  assert.equal(confirm().orderNumber, 'O-001001');
+  assert.equal(b.get(manager, ORDERS).value[0].orderNumber, 'O-001001');
+  assert.equal(b.numberingSettings(manager).settings.order.next, 1002);
+  const forged = b.get(manager, ORDERS).value; forged[0].orderNumber = 'O-000001';
+  assert.equal(b.set(manager, ORDERS, forged).ok, false);
+  assert.equal(b.set(manager, ORDERS, []).ok, false);
+  assert.equal(b.del(manager, ORDERS).ok, false);
+  assert.equal(create('o2').orderNumber, '');
+  assert.equal(confirm('o2').orderNumber, 'O-001002');
+});
+test('an unconfirmed draft is deletable and its legacy reservation is released; a confirmed order stays protected', t => {
+  const { b, manager, create, confirm } = fixture(t);
+  create('draft');
+  /* سفارش معلقِ قدیمی که پیش از این قاعده شماره رزرو کرده بود، هنگام حذف باید رزرو را آزاد کند. */
+  b._db.run('INSERT INTO numbering_reservations(type,number,serial,record_id,created_at) VALUES(?,?,?,?,?)', 'order', '1001', 1001, 'draft', Date.now());
+  const read = b.get(manager, ORDERS);
+  assert.equal(b.set(manager, ORDERS, [], read.revs).ok, true, 'an unconfirmed draft must be deletable');
+  assert.deepEqual(b.get(manager, ORDERS).value, [], 'the deleted draft must not reappear');
+  assert.equal(b._db.get('SELECT count(*) n FROM numbering_reservations WHERE type = ?', 'order').n, 0, 'the draft reservation must be released');
+  assert.ok(b.auditRows().some(r => r.action === 'draft_order_deleted' && r.target === '1001'), 'draft deletion must be audited with its released number');
+  create('kept'); confirm('kept');
+  const after = b.get(manager, ORDERS);
+  assert.equal(b.set(manager, ORDERS, [], after.revs).ok, false, 'a confirmed order must not be erased through generic set');
+  assert.equal(b.del(manager, ORDERS).ok, false);
+  assert.equal(b.get(manager, ORDERS).value.length, 1);
+});
+test('legacy numbers remain unchanged and confirmation respects existing high numbers without read-time migration', t => {
+  const { b, manager, create, confirm } = fixture(t);
+  b._db.run('INSERT INTO kinds(key,kind) VALUES(?,?)', ORDERS, 'array');
+  b._db.run('INSERT INTO records(collection,id,ord,data,updated_at) VALUES(?,?,?,?,?)', ORDERS, 'legacy', 0, JSON.stringify({ id: 'legacy', orderNumber: '9000', status: 'در انتظار تایید', items: [], payments: [], history: [] }), Date.now());
+  const reservations = b._db.get('SELECT count(*) n FROM numbering_reservations').n;
+  assert.equal(b.numberingSettings(manager).settings.order.next, 9001);
+  assert.equal(b._db.get('SELECT count(*) n FROM numbering_reservations').n, reservations);
+  assert.equal(create().orderNumber, '', 'creating a draft must not consume the next number');
+  assert.equal(b.numberingSettings(manager).settings.order.next, 9001);
+  assert.equal(confirm().orderNumber, '9001');
+  assert.equal(b.get(manager, ORDERS).value.find(o => o.id === 'legacy').orderNumber, '9000');
+});
+test('financial documents freeze authoritative snapshots with independent numbers and require invoice confirmation', t => {
+  const { b, manager, finance, clerk, create, price } = fixture(t);
+  const order = create(); price();
+  assert.equal(b.documentAction(clerk, order.id, 'issue_quote').code, 'FORBIDDEN');
+  assert.equal(b.documents(clerk).code, 'FORBIDDEN');
+  assert.equal(b.get(clerk, 'printshop_documents_v1').code, 'FORBIDDEN');
+  assert.equal(b.set(manager, 'printshop_documents_v1', []).code, 'FORBIDDEN');
+  assert.equal(b.documentAction(finance, order.id, 'issue_invoice').ok, false);
+  const quoted = b.documentAction(finance, order.id, 'issue_quote', { number: 'fake', snapshot: { total: 0 } });
+  assert.equal(quoted.ok, true); assert.equal(quoted.document.number, '2001');
+  assert.equal(quoted.document.snapshot.order.pricing.result.total, 1320);
+  assert.equal(quoted.document.orderNumber, '', 'a quote issued before customer approval has no order number yet');
+  assert.equal(quoted.document.quoteRevision, 2);
+  assert.equal(b.orderAction(clerk, order.id, 'confirm_customer', { evidence: 'تایید مشتری' }).ok, true);
+  assert.equal(b.documentAction(finance, order.id, 'issue_invoice').document.number, '3001');
+  assert.equal(b.documentAction(manager, order.id, 'issue_statement').document.number, '4001');
+  assert.equal(b.documents(finance).documents.length, 3);
+});
+test('repeated issue is idempotent, void requires reason and never frees a number, reprice gets a new document', t => {
+  const { b, manager, finance, create, price, input } = fixture(t);
+  create(); price();
+  const first = b.documentAction(finance, 'o1', 'issue_quote').document;
+  const repeated = b.documentAction(manager, 'o1', 'issue_quote');
+  assert.equal(repeated.idempotent, true); assert.equal(repeated.document.id, first.id);
+  assert.equal(b.documentAction(finance, 'o1', 'void', { documentId: first.id }).ok, false);
+  assert.equal(b.documentAction(finance, 'o1', 'void', { documentId: first.id, reason: 'اصلاح سند' }).document.status, 'void');
+  const afterVoid = b.documentAction(finance, 'o1', 'issue_quote');
+  assert.equal(afterVoid.idempotent, true); assert.equal(afterVoid.document.status, 'void');
+  const changed = structuredClone(input); changed.services[0].rate = 2000;
+  price('o1', 2, changed);
+  const second = b.documentAction(finance, 'o1', 'issue_quote').document;
+  assert.equal(second.number, '2002'); assert.equal(second.quoteRevision, 3);
+  const historical = b.documents(finance).documents.find(d => d.id === first.id);
+  assert.equal(historical.snapshot.order.pricing.result.total, 1320); assert.equal(historical.status, 'void');
+  const rollback = b.numberingSettings(manager).settings; rollback.quote.next = 2001;
+  assert.equal(b.saveNumberingSettings(manager, rollback).ok, false);
+});
+test('document writes roll back number reservation and reject corrupted stored pricing', t => {
+  const { b, manager, finance, create, price } = fixture(t);
+  create(); price();
+  b._db.exec("CREATE TRIGGER fail_document BEFORE INSERT ON financial_documents BEGIN SELECT RAISE(ABORT, 'test failure'); END");
+  assert.equal(b.documentAction(finance, 'o1', 'issue_quote').ok, false);
+  assert.equal(b.numberingSettings(manager).settings.quote.next, 2001);
+  assert.equal(b._db.get('SELECT count(*) n FROM numbering_reservations WHERE type = ?', 'quote').n, 0);
+  b._db.exec('DROP TRIGGER fail_document');
+  const order = b.get(manager, ORDERS).value[0]; order.pricing.result.total = 1;
+  b._db.run('UPDATE records SET data = ? WHERE collection = ? AND id = ?', JSON.stringify(order), ORDERS, order.id);
+  assert.equal(b.documentAction(finance, 'o1', 'issue_quote').ok, false);
+  assert.equal(b.documents(finance).documents.length, 0);
+});
+test('letters, receipts and stock movements have independent server sequences and cannot lose their numbers', t => {
+  const { b, manager, clerk, store } = fixture(t);
+  const letters = 'printshop_letters_v1', receipts = 'printshop_receipts_v1';
+  const letter = b.set(clerk, letters, [{ id: 'l1', number: 'draft', createdBy: 'clerk', status: 'sent' }]);
+  assert.equal(letter.ok, true); assert.equal(letter.value[0].number, '5001');
+  const receipt = b.set(store, receipts, [{ id: 'r1', receiptNumber: 'draft', payStatus: 'unpaid' }]);
+  assert.equal(receipt.ok, true); assert.equal(receipt.value[0].receiptNumber, '6001');
+  const stock = b.set(store, INVENTORY, [{ id: 'stock', quantity: 10, movements: [{ id: 'm1', type: 'in', qty: 10, movementNumber: 'draft' }] }]);
+  assert.equal(stock.ok, true); assert.equal(stock.value[0].movements[0].movementNumber, '7001');
+  for (const key of [letters, receipts, INVENTORY]) {
+    const records = b.get(manager, key).value;
+    const forged = structuredClone(records);
+    if (key === INVENTORY) forged[0].movements[0].movementNumber = '1'; else forged[0][key === letters ? 'number' : 'receiptNumber'] = '1';
+    assert.equal(b.set(manager, key, forged).ok, false);
+    assert.equal(b.set(manager, key, []).ok, false);
+    assert.equal(b.del(manager, key).ok, false);
+  }
+});
+test('separate backend instances observe the committed sequence and document idempotency', t => {
+  const { b, dir, manager, create, price, confirm } = fixture(t);
+  create(); price();
+  const other = createBackend({ dataDir: dir, openDb });
+  try {
+    const token = other.login('admin', 'strong-numbering-pass').token;
+    const first = b.documentAction(manager, 'o1', 'issue_quote');
+    const repeated = other.documentAction(token, 'o1', 'issue_quote');
+    assert.equal(repeated.document.id, first.document.id); assert.equal(repeated.idempotent, true);
+    assert.equal(confirm('o1').orderNumber, '1001');
+    const added = other.set(token, ORDERS, [...other.get(token, ORDERS).value, { id: 'o2', orderNumber: 'client-draft-9999', status: 'در انتظار تایید', items: [], payments: [], history: [] }]);
+    assert.equal(added.ok, true);
+    assert.equal(added.value.find(o => o.id === 'o2').orderNumber, '', 'a draft added by another station stays unnumbered');
+    const confirmed = other.orderAction(token, 'o2', 'confirm_customer', { evidence: 'تأیید مشتری' });
+    assert.equal(confirmed.ok, true, confirmed.error);
+    assert.equal(confirmed.orderNumber, '1002');
+    assert.equal(b.numberingSettings(manager).settings.order.next, 1003);
+  } finally { other.close(); }
+});
+test('failed record writes consume no number and a disabled series blocks confirmation, not draft creation', t => {
+  const { b, manager } = fixture(t);
+  b._db.exec("CREATE TRIGGER fail_order BEFORE INSERT ON records WHEN NEW.collection = 'printshop_orders_v5' BEGIN SELECT RAISE(ABORT, 'test failure'); END");
+  const order = { id: 'o1', status: 'در انتظار تایید', items: [], payments: [], history: [] };
+  assert.equal(b.set(manager, ORDERS, [order]).ok, false);
+  assert.equal(b.numberingSettings(manager).settings.order.next, 1001);
+  assert.equal(b._db.get('SELECT count(*) n FROM numbering_reservations').n, 0);
+  b._db.exec('DROP TRIGGER fail_order');
+  assert.equal(b.set(manager, ORDERS, [order]).value[0].orderNumber, '');
+  const settings = b.numberingSettings(manager).settings; settings.order.enabled = false;
+  assert.equal(b.saveNumberingSettings(manager, settings).ok, true);
+  const blocked = b.orderAction(manager, 'o1', 'confirm_customer', { evidence: 'تأیید مشتری' });
+  assert.equal(blocked.ok, false);
+  assert.equal(blocked.code, 'NUMBERING_DISABLED');
+  assert.equal(b._db.get('SELECT count(*) n FROM order_events').n, 0, 'a blocked confirmation must leave no event');
+  assert.equal(b.get(manager, ORDERS).value[0].workflow && b.get(manager, ORDERS).value[0].workflow.customerConfirmation, undefined);
+  settings.order.enabled = true; b.saveNumberingSettings(manager, settings);
+  assert.equal(b.orderAction(manager, 'o1', 'confirm_customer', { evidence: 'تأیید مشتری' }).orderNumber, '1001');
+});
+test('customer requests and staff orders share the same committed order sequence at confirmation', t => {
+  const { b, manager, create, confirm } = fixture(t);
+  create();
+  assert.equal(b.set(manager, 'printshop_customers_v2', [{ id: 'c1', name: 'مشتری' }]).ok, true);
+  b.customerAction(manager, 'c1', 'approve', { reason: 'مدارک ثبتی کامل است' }); b.customerAction(manager, 'c1', 'issue_number');
+  const users = b.listUsers(manager).users;
+  users.push({ id: 'customer', username: 'customer', name: 'مشتری', role: 'مشتری', customerId: 'c1', _plain: 'customer-strong-pass' });
+  assert.equal(b.saveUsers(manager, users).ok, true);
+  const customer = b.login('customer', 'customer-strong-pass').token;
+  assert.equal(b.submitRequest(customer, 'درخواست چاپ کتاب نمونه', '').orderNumber, '', 'a customer request is suspended without a number');
+  const request = b.get(manager, ORDERS).value.find(o => o.source === 'مشتری');
+  assert.equal(request.customerCode, 'C-000001'); assert.equal(request.status, 'درخواست مشتری');
+  const moved = b.get(manager, ORDERS).value;
+  moved.find(o => o.id === request.id).status = 'در انتظار تایید';
+  assert.equal(b.set(manager, ORDERS, moved).ok, true);
+  assert.equal(confirm(request.id).orderNumber, '1001');
+  assert.equal(confirm('o1').orderNumber, '1002');
+  assert.equal(create('o3').orderNumber, '');
+  assert.equal(confirm('o3').orderNumber, '1003');
+});
+test('production stock movement and sequence commit or roll back with the stage change', t => {
+  const { b, manager, clerk, create } = fixture(t);
+  create();
+  const orders = b.get(manager, ORDERS).value;
+  orders[0].items[0].lithoMaterials = [{ id: 'plate', inventoryItemId: 'stock', description: 'زینک', qty: 2, unitLabel: 'ورق' }];
+  assert.equal(b.set(manager, ORDERS, orders).ok, true);
+  assert.equal(b.set(manager, INVENTORY, [{ id: 'stock', name: 'زینک', ownerType: 'چاپخانه', unitMode: 'simple', simpleUnit: 'ورق', quantity: 10, movements: [{ id: 'opening', type: 'in', qty: 10 }] }]).ok, true);
+  assert.equal(b.orderAction(clerk, 'o1', 'confirm_customer', { evidence: 'تایید مشتری' }).ok, true);
+  assert.equal(b.orderAction(manager, 'o1', 'release_production', { materialReview: { checked: true, shortages: [] } }).ok, true);
+  b._db.exec("CREATE TRIGGER fail_stage BEFORE INSERT ON order_events BEGIN SELECT RAISE(ABORT, 'test failure'); END");
+  const payload = { itemId: 'i1', newStage: 'لیتوگرافی و زینک', reason: 'طراحی آماده مشتری دریافت شد' };
+  assert.equal(b.orderAction(manager, 'o1', 'change_stage', payload).ok, false);
+  assert.equal(b.numberingSettings(manager).settings.stockmovement.next, 7002);
+  let stock = b.get(manager, INVENTORY).value[0];
+  assert.equal(stock.quantity, 10); assert.equal(stock.movements.length, 1);
+  b._db.exec('DROP TRIGGER fail_stage');
+  const changed = b.orderAction(manager, 'o1', 'change_stage', payload);
+  assert.equal(changed.ok, true, changed.error);
+  stock = b.get(manager, INVENTORY).value[0];
+  assert.equal(stock.quantity, 8); assert.equal(stock.movements[1].movementNumber, '7002');
+  const forged = b.get(manager, INVENTORY).value; forged[0].movements.pop();
+  assert.equal(b.set(manager, INVENTORY, forged).ok, false);
+});
+
+test('all new documents freeze server seller and print settings without secrets or caller overrides', t => {
+  const { b, manager, finance, clerk, create, price } = fixture(t);
+  create(); price();
+  const settings = { company: { name: 'فروشنده اصلی', nationalId: '123', footer: 'پایان اصلی' }, quote: { validityDays: 3, terms: 'شرط اولیه', vatPercent: 10 }, ai: { apiKey: 'never-print-this' }, calc: { marginPercent: 50 } };
+  assert.equal(b.set(manager, 'printshop_settings_v1', settings).ok, true);
+  assert.equal(b.orderAction(clerk, 'o1', 'confirm_customer', { evidence: 'تأیید' }).ok, true);
+  const issued = ['quote', 'invoice', 'statement'].map(type => {
+    const r = b.documentAction(finance, 'o1', 'issue_' + type, { snapshot: { seller: { name: 'forged' }, printSettings: {} } });
+    assert.equal(r.ok, true, r.error);
+    assert.deepEqual(r.document.snapshot.seller, settings.company);
+    assert.deepEqual(r.document.snapshot.printSettings, { company: settings.company, quote: settings.quote });
+    assert.equal(JSON.stringify(r.document).includes('never-print-this'), false);
+    return r.document;
+  });
+  settings.company.name = 'فروشنده جدید'; settings.quote.terms = 'شرط جدید';
+  assert.equal(b.set(manager, 'printshop_settings_v1', settings).ok, true);
+  assert.deepEqual(b.documents(finance).documents.slice().reverse(), issued);
+  for (const original of issued) assert.deepEqual(b.documentAction(manager, 'o1', 'issue_' + original.type).document, original);
+});
+
+test('issued invoice prevents repricing even for manager; void preserves snapshot and unlocks preproduction revision', t => {
+  const { b, manager, finance, clerk, create, price, input } = fixture(t);
+  create(); price();
+  assert.equal(b.orderAction(clerk, 'o1', 'confirm_customer', { evidence: 'تأیید' }).ok, true);
+  const first = b.documentAction(finance, 'o1', 'issue_invoice').document;
+  assert.ok(first);
+  const changed = structuredClone(input); changed.services[0].rate = 2000;
+  for (const actor of [manager, finance]) {
+    assert.equal(b.previewQuote(actor, 'o1', changed).code, 'INVOICE_LOCKED');
+    assert.equal(b.orderAction(actor, 'o1', 'save_quote', { expectedRevision: 2, input: changed }).code, 'INVOICE_LOCKED');
+    const orders = b.get(actor, ORDERS).value; orders[0].title = 'changed';
+    assert.equal(b.set(actor, ORDERS, orders).ok, false);
+    assert.equal(b.set(actor, 'printshop_documents_v1', []).code, 'FORBIDDEN');
+    assert.equal(b.del(actor, 'printshop_documents_v1').ok, false);
+    assert.equal(b.set(actor, ORDERS, []).ok, false);
+  }
+  assert.equal(b.get(manager, ORDERS).value[0].quoteRev, 2);
+  assert.equal(b.documentAction(finance, 'o1', 'void', { documentId: first.id }).ok, false);
+  const voided = b.documentAction(finance, 'o1', 'void', { documentId: first.id, reason: 'بازنگری قیمت قبل تولید' });
+  assert.equal(voided.ok, true, voided.error);
+  assert.deepEqual(voided.document.snapshot, first.snapshot);
+  price('o1', 2, changed);
+  const historical = b.documents(manager).documents.find(d => d.id === first.id);
+  assert.equal(historical.status, 'void');
+  assert.deepEqual(historical.snapshot, first.snapshot);
+});
+
+test('invoice issuance, repetition and void never deduct or reverse production inventory', t => {
+  const { b, manager, finance, clerk, create, price } = fixture(t);
+  create();
+  const orders = b.get(manager, ORDERS).value;
+  orders[0].items[0].lithoMaterials = [{ id: 'plate', inventoryItemId: 'stock', description: 'زینک', qty: 2, unitLabel: 'ورق' }];
+  assert.equal(b.set(manager, ORDERS, orders).ok, true);
+  assert.equal(b.set(manager, INVENTORY, [{ id: 'stock', name: 'زینک', ownerType: 'چاپخانه', unitMode: 'simple', simpleUnit: 'ورق', quantity: 10, movements: [] }]).ok, true);
+  price();
+  assert.equal(b.orderAction(clerk, 'o1', 'confirm_customer', { evidence: 'تأیید' }).ok, true);
+  assert.equal(b.orderAction(manager, 'o1', 'release_production', { materialReview: { checked: true, shortages: [] } }).ok, true);
+  assert.equal(b.orderAction(manager, 'o1', 'change_stage', { itemId: 'i1', newStage: 'لیتوگرافی و زینک', reason: 'طراحی آماده مشتری' }).ok, true);
+  const consumed = b.get(manager, INVENTORY).value;
+  assert.equal(consumed[0].quantity, 8);
+  assert.equal(consumed[0].movements.length, 1);
+  const movementNext = b.numberingSettings(manager).settings.stockmovement.next;
+  const consumption = b.get(manager, ORDERS).value[0].items[0].materialConsumption;
+  const first = b.documentAction(finance, 'o1', 'issue_invoice');
+  assert.equal(first.ok, true, first.error);
+  assert.equal(b.documentAction(manager, 'o1', 'issue_invoice').idempotent, true);
+  assert.equal(b.documentAction(finance, 'o1', 'void', { documentId: first.document.id, reason: 'ابطال سند مالی' }).ok, true);
+  assert.equal(b.documentAction(finance, 'o1', 'void', { documentId: first.document.id, reason: 'تکرار درخواست' }).idempotent, true);
+  assert.deepEqual(b.get(manager, INVENTORY).value, consumed);
+  assert.deepEqual(b.get(manager, ORDERS).value[0].items[0].materialConsumption, consumption);
+  assert.equal(b.numberingSettings(manager).settings.stockmovement.next, movementNext);
+});

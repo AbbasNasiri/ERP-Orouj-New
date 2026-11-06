@@ -1,0 +1,24 @@
+/* Labels never consume a fixed column inside narrow form cells. */
+.psx-field{display:flex;flex-direction:column;align-items:stretch;gap:7px;min-width:0;max-width:100%;font-size:13px;font-weight:400;color:#352b30}
+.psx-field-label{display:block;min-width:0;overflow-wrap:anywhere;font-size:13px;font-weight:500;line-height:1.7;color:#776d70}
+.psx-field-control{display:flex;flex-direction:column;gap:5px;min-width:0;width:100%}
+.psx-field-control>input,.psx-field-control>select,.psx-field-control>textarea{width:100%;min-width:0;box-sizing:border-box}
+.psx-field-control>input,.psx-field-control>select{min-height:38px}
+.psx-field textarea{resize:vertical}
+/* checkbox + توضیح کوتاه، پنل فرعی و ردیف پورسانت: همه با یک اصول */
+.psx-check{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#352b30;align-self:end;min-height:38px}
+.psx-check input[type=checkbox]{width:auto;flex:none;margin:0}
+.psx-hint{flex-basis:100%;display:block;font-size:11px;font-weight:400;color:#776d70;line-height:1.7}
+.psx-hint-block{margin:0}
+.psx-subpanel{background:#fff;border:1px solid #ded3cd;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+/* کارفرما (۱۴۰۴/۰۸/۰۳): ردیف‌های پورسانت مثل قبل یک‌خطی و جمع‌وجور باشند، نه ستونی و کشیده. */
+.psx-subpanel>.psx-field{align-self:flex-start;width:min(100%,280px)}
+.psx-tier-row{display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
+.psx-tier-row>span{font-size:12px;flex:none;white-space:nowrap}
+/* ارتفاع جعبه‌ها عمداً همان ۳۸ پیکسلِ مقیاس یکپارچهٔ بند ۱ است؛ فقط پهنا جمع شده است. */
+.psx-tier-row>input{width:100%;min-width:0;box-sizing:border-box}
+.psx-tier-row>input.psx-tier-upto{flex:0 1 170px}
+.psx-tier-row>input.psx-tier-pct{flex:0 1 84px}
+.psx-tier-sign{font-size:12px}
+.psx-tier-row button{padding:4px!important;flex:none}
+@media print{.psx-field{gap:3px}.psx-field-label{color:inherit}}

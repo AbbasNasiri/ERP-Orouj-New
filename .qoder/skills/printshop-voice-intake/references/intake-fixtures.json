@@ -1,0 +1,83 @@
+{
+  "productTypes": ["کتاب", "مجله", "بروشور", "تراکت", "پوستر", "سررسید", "فلایر", "کارت ویزیت"],
+  "serviceTypes": ["طلاکوب", "بولینگ", "لیزراتور", "سلفون"],
+  "cases": [
+    {
+      "name": "customer-request-text",
+      "note": "the exact shape CustomerRequestForm composes",
+      "text": "محصول: کتاب\nتعداد: 2000\nمشخصات: رحلی 400 صفحه متن تحریر 70 گرم\nشماره تماس: 09121234567",
+      "expect": { "qty": 2000, "pages": 400, "sizeKey": "رحلی", "textKind": "تحریر", "textGsm": 70 },
+      "notes": "none"
+    },
+    {
+      "name": "reference-book-spoken",
+      "note": "the owner's agreed example, numbers spelled as a dictation would",
+      "text": "کتاب رحلی ۴۰۰ صفحه متن تحریر هفتاد گرم دو رنگ جلد گلاسه ۲۵۰ گرم تمام رنگی سلفون براق چسب گرم دو هزار و پانصد نسخه",
+      "expect": { "qty": 2500, "pages": 400, "sizeKey": "رحلی", "textGsm": 70, "textColors": 2, "coverGsm": 250, "coverColors": 4, "cellophane": "براق", "binding": "شومیز (چسب گرم)" },
+      "notes": "none"
+    },
+    {
+      "name": "quantity-bare-hundred-thousands",
+      "text": "کتاب رقعی ۳۲۰ صفحه تیراژ هزار و پانصد نسخه",
+      "expect": { "qty": 1500, "pages": 320, "sizeKey": "رقعی" },
+      "notes": "none"
+    },
+    {
+      "name": "one-copy-phrase-must-not-win",
+      "text": "یک جلد کتاب رحلی دو هزار نسخه",
+      "expect": { "qty": 2000, "sizeKey": "رحلی" },
+      "notes": "none"
+    },
+    {
+      "name": "sheet-word-needs-confirmation",
+      "text": "تراکت A5 ۱۰۰ گرم ۵۰۰۰ برگ",
+      "expect": { "qty": 5000, "sizeKey": "A5", "textGsm": 100 },
+      "notes": 1
+    },
+    {
+      "name": "unknown-colour-word-must-ask",
+      "text": "کتاب ۲۴۰ صفحه سه رنگ تیراژ ۲۰۰۰ نسخه",
+      "expect": { "qty": 2000, "pages": 240, "textColors": null },
+      "notes": 1
+    },
+    {
+      "name": "spoken-pages",
+      "text": "کتاب دویست صفحه رحلی تیراژ دو هزار نسخه",
+      "expect": { "qty": 2000, "pages": 200, "sizeKey": "رحلی" },
+      "notes": "none"
+    },
+    {
+      "name": "digits-only-classic",
+      "note": "regression guard: the old handwritten style must keep working",
+      "text": "کتاب وزیری 240 صفحه، متن تحریر 80 گرم تک رنگ، جلد گلاسه 150 گرم چهار رنگ، صحافی گالینگور، تیراژ 1000 نسخه",
+      "expect": { "qty": 1000, "pages": 240, "sizeKey": "وزیری", "textKind": "تحریر", "textGsm": 80, "textColors": 1, "coverColors": 4, "binding": "گالینگور (جلد سخت)" },
+      "notes": "none"
+    },
+    {
+      "name": "flat-product-two-sided",
+      "text": "پوستر A3 ۱۵۰ گرم چهار رنگ دو رو ۵۰۰ عدد",
+      "expect": { "qty": 500, "sizeKey": "A3", "textGsm": 150, "textColors": 4, "textSides": 2 },
+      "notes": "none"
+    },
+    {
+      "name": "multi-item-one-breath",
+      "text": "کتاب رحلی ۳۰۰ صفحه تیراژ ۱۰۰۰ نسخه و ۵۰۰۰ بروشور A4",
+      "expect": { "items": 2 },
+      "notes": "none"
+    },
+    {
+      "name": "dictated-commas-after-every-phrase",
+      "note": "the shape a local ASR emits: a Persian comma closes each phrase, so a unit is often followed by «،» rather than a space or end of text",
+      "text": "کتاب وزیری ۲۴۰ صفحه، متن تحریر ۷۰ گرم، تک رنگ، یک‌رو، تیراژ ۲۰۰ نسخه، جلد گلاسه ۲۵۰ گرم، چهار رنگ، سلفون براق، چسب گرم",
+      "expect": { "qty": 200, "pages": 240, "sizeKey": "وزیری", "textKind": "تحریر", "textGsm": 70, "textColors": 1, "textSides": 1, "coverColors": 4, "cellophane": "براق", "binding": "شومیز (چسب گرم)" },
+      "notes": "none"
+    },
+    {
+      "name": "sheet-unit-brage-with-comma",
+      "note": "برگه is its own unit and always costs a confirmation note — it can mean paper sheets, not copies",
+      "text": "تراکت A4 تحریر ۷۰ گرم، تمام رنگی، ۵۰۰ برگه",
+      "expect": { "qty": 500, "sizeKey": "A4", "textGsm": 70, "textColors": 4 },
+      "notes": 1
+    }
+  ]
+}

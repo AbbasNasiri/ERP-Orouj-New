@@ -1,0 +1,28 @@
+.catalog-transfer{display:grid;gap:14px;min-width:0;color:#2b2320}.catalog-transfer h2,.catalog-transfer p{margin:0}.catalog-transfer p{line-height:1.9;color:#796e67}.catalog-transfer-toolbar,.catalog-confirm{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:14px;border:1px solid #e3d6bc;border-radius:10px;background:#fbf6ec}.catalog-transfer label{display:flex;align-items:center;gap:8px}.catalog-transfer button,.catalog-transfer select,.catalog-file{font:inherit;border:1px solid #7a2048;border-radius:7px;padding:7px 12px;background:white;color:#7a2048;cursor:pointer}.catalog-transfer button:disabled{opacity:.5;cursor:default}.catalog-file input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.catalog-file{position:relative}
+.catalog-file:focus-within{outline:3px solid #c9a227;outline-offset:2px}.catalog-preview{overflow:auto;max-width:100%;border:1px solid #e3d6bc;border-radius:10px}.catalog-preview table{width:100%;border-collapse:collapse;white-space:nowrap}.catalog-preview th,.catalog-preview td{text-align:right;padding:8px 10px;border-bottom:1px solid #e3d6bc}.catalog-preview th{background:#f1e6d8}.catalog-preview caption{padding:10px}.catalog-error{color:#b3261e!important}.catalog-confirm button{background:#7a2048;color:white}.catalog-transfer :focus-visible{outline:3px solid #c9a227;outline-offset:2px}
+.catalog-steps{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none;counter-reset:none}
+.catalog-step{padding:6px 12px;border:1px solid #e3d6bc;border-radius:999px;background:#fff;color:#796e67;font-size:12px;font-weight:700}
+.catalog-step.is-current{border-color:#7a2048;background:#7a2048;color:#fff}
+.catalog-step.is-done{border-color:#b08a3e;background:#fbf6ec;color:#7a5b1e}
+.catalog-help{margin:0!important;font-size:12px;line-height:1.9;color:#5b4a3a!important}
+.catalog-fileinfo{display:grid;gap:4px;padding:12px 14px;border:1px solid #b08a3e;border-radius:10px;background:#fbf6ec;font-size:12px;line-height:1.8;color:#5b4a3a}
+.catalog-fileinfo strong{color:#7a2048}
+.catalog-result{display:grid;gap:6px;justify-items:start;padding:14px;border:1px solid #7a9b6a;border-radius:10px;background:#f2f8ee;color:#2f4a24;font-size:13px;line-height:1.9}
+.catalog-result p{margin:0!important;color:#3c5a30!important;font-size:12px}
+.catalog-result button{background:#2f4a24;color:#fff;border-color:#2f4a24}
+.catalog-editor{display:grid;gap:8px;min-width:0;border:1px solid #e3d6bc;border-radius:10px;padding:12px;background:#fff}
+.catalog-editor-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.catalog-editor-actions{display:flex;flex-wrap:wrap;gap:8px}
+.catalog-hint{margin:0!important;font-size:12px;line-height:1.9;color:#5b4a3a!important}
+.catalog-warning{margin:0!important;padding:8px 10px;border:1px solid #d8b065;border-radius:8px;background:#fff0d1;color:#67440e!important;font-size:12px;font-weight:700}
+.catalog-grid-scroll{overflow:auto;max-width:100%;border:1px solid #e3d6bc;border-radius:8px}
+.catalog-grid{width:max-content;min-width:100%;border-collapse:collapse}
+.catalog-grid caption{text-align:right;padding:8px 10px;color:#796e67}
+.catalog-grid th,.catalog-grid td{border-bottom:1px solid #eadfcd;border-left:1px solid #f0e8da;padding:3px 4px;text-align:right;vertical-align:middle;white-space:nowrap}
+.catalog-grid thead th{position:sticky;top:0;z-index:1;background:#f1e6d8;font-size:12px}
+.catalog-grid tbody th{background:#fbf6ec;font-weight:700;text-align:center;min-width:44px}
+.catalog-grid input{width:100%;min-width:90px;max-width:220px;border:1px solid #d9cbb4;border-radius:6px;padding:4px 6px;font:inherit;font-size:12px;background:#fff;color:#2b2320}
+.catalog-grid tr.catalog-row-error td,.catalog-grid tr.catalog-row-error th{background:#fff1f0}
+.catalog-grid tr.catalog-row-error td[colspan]{color:#b3261e;font-weight:700;white-space:normal;text-align:right;padding:5px 10px}
+.catalog-remove{padding:3px 10px!important;font-size:12px!important;border-color:#dfc2c2!important;color:#9e2424!important;background:transparent!important}

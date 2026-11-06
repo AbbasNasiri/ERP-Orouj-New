@@ -1,0 +1,10 @@
+@font-face { font-family: 'Vazirmatn'; src: url('./fonts/Vazirmatn-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: 'Vazirmatn'; src: url('./fonts/Vazirmatn-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: block; }
+@font-face { font-family: 'Vazirmatn'; src: url('./fonts/Vazirmatn-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: block; }
+@font-face { font-family: 'Vazirmatn'; src: url('./fonts/Vazirmatn-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: block; }
+@font-face { font-family: 'Vazirmatn'; src: url('./fonts/Vazirmatn-ExtraBold.ttf') format('truetype'); font-weight: 800; font-style: normal; font-display: block; }
+
+html, body { margin: 0; background: #FBF6EC; font-family: 'Vazirmatn', Tahoma, Arial, sans-serif; }
+button, input, select, textarea { font-family: inherit; }
+
+@keyframes psPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(179,38,30,0.45); } 50% { box-shadow: 0 0 0 9px rgba(179,38,30,0); } }

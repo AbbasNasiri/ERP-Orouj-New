@@ -1,0 +1,52 @@
+/* کارت‌های پرسش موتور — بلوک رنگ و فرم‌بندی قطع.
+   پیشنهاد برنامه مستقیم داخل همان فیلدها می‌نشیند (خط‌چین کهربایی) و تا «تأیید» نشود عدد ساخته نمی‌شود. */
+
+.engine-ask{border:1px solid #E4C77B;background:#FFFBF0;border-radius:12px;padding:12px 14px;margin:14px 0}
+.engine-ask-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.engine-ask-head .ea-qmark{width:20px;height:20px;border-radius:999px;background:#B4740E;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;flex:none}
+.engine-ask-head h3{margin:0;font-size:13px;font-weight:800;color:#551531}
+.engine-ask-head .ea-chip{margin-inline-start:auto;background:#FBF0DC;color:#B4740E;border:1px dashed #D2A437;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;white-space:nowrap}
+.engine-ask .ea-q{background:#fff;border:1px solid #EADFC8;border-radius:10px;padding:11px 12px;margin-bottom:9px}
+.engine-ask .ea-q:last-child{margin-bottom:0}
+.engine-ask .ea-q-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.engine-ask .ea-q-top b{font-size:12.5px;font-weight:800;color:#2B2320}
+.engine-ask .ea-q p{margin:4px 0 9px;font-size:12px;line-height:1.9;color:#8A7A66}
+.engine-ask .ea-chips{display:flex;gap:8px;flex-wrap:wrap}
+.engine-ask .ea-chip-opt{display:flex;align-items:center;gap:7px;border:1px solid #E3D6BC;border-radius:9px;padding:7px 11px;background:#fffdf8;font-size:12px;font-weight:600;cursor:pointer;min-height:36px;font-family:inherit;color:#2B2320;text-align:right}
+.engine-ask .ea-chip-opt:hover{border-color:#C9A227}
+.engine-ask .ea-chip-opt.on{border-color:#7A2048;background:#FBF1F5;color:#551531;box-shadow:inset 0 0 0 1px #7A2048}
+.engine-ask .ea-chip-opt .ea-dot{width:13px;height:13px;border-radius:999px;border:2px solid #C9B79A;flex:none}
+.engine-ask .ea-chip-opt.on .ea-dot{border-color:#7A2048;background:radial-gradient(circle,#7A2048 0 40%,#fff 45% 100%)}
+
+.engine-ask input.ea-sug,.engine-ask select.ea-sug{border:1px dashed #D2A437!important;background:#FFFDF4!important;box-shadow:inset 0 0 0 1px #F3E4BE}
+.engine-ask .ea-sug-flag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;color:#94660D;background:#FBF0DC;border:1px dashed #D2A437;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.engine-ask .ea-sug-flag::before{content:'';width:6px;height:6px;border-radius:999px;background:#D2A437}
+
+.engine-ask .ea-ranges{border:1px dashed #D2A437;border-radius:9px;overflow:auto;margin-top:9px;background:#fff}
+.engine-ask .ea-ranges table{width:100%;border-collapse:collapse;font-size:12px;min-width:560px}
+.engine-ask .ea-ranges th{background:#F7EFE1;color:#6B5A4A;font-weight:600;text-align:right;padding:6px 9px;font-size:11.5px;white-space:nowrap}
+.engine-ask .ea-ranges td{padding:5px 9px;border-top:1px solid #F0E6D2;vertical-align:middle}
+.engine-ask .ea-ranges input,.engine-ask .ea-ranges select{min-height:32px;padding:2px 7px;font-size:12px}
+.engine-ask .ea-ranges .ea-del{width:28px;height:28px;border:1px solid #E3D6BC;background:#fff;border-radius:7px;color:#B3261E;cursor:pointer;font-size:14px;line-height:1;font-family:inherit;display:grid;place-items:center}
+.engine-ask .ea-ranges-foot{display:flex;align-items:center;gap:10px;padding:7px 9px;border-top:1px solid #F0E6D2;background:#FFFDF8;flex-wrap:wrap}
+.engine-ask .ea-sum{font-size:11.5px;color:#2E7D32;font-weight:700}
+.engine-ask .ea-sum.bad{color:#B3261E}
+.engine-ask .ea-link{border:0;background:transparent;color:#7A2048;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:4px 2px}
+.engine-ask .ea-suggest-note{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:9px;background:#FDF7E8;border:1px dashed #D8C9AC;border-radius:9px;padding:6px 10px;font-size:11.5px;color:#6B5A4A;line-height:1.8}
+.engine-ask .ea-approve-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.engine-ask .ea-approve-row .ea-note{font-size:11px;color:#9A8663;line-height:1.8}
+.engine-ask .ea-btn{border:1px solid #7A2048;background:#7A2048;color:#fff;border-radius:9px;padding:7px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;min-height:34px}
+.engine-ask .ea-btn.ghost{background:#FFFDF8;color:#551531;border-color:#D8C9AC}
+.engine-ask .ea-btn[disabled]{background:#F3EEE4;color:#9C8E7C;border-color:#E4DAC8;cursor:not-allowed}
+.engine-ask .ea-foot{font-size:11px;color:#8A7A66;line-height:1.9;margin:9px 2px 0}
+
+.engine-ask-done{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:#3E6B52;background:#F1F8F4;border:1px solid #CFE3D7;border-radius:9px;padding:7px 11px;margin:14px 0}
+.engine-ask-done b{color:#2C7057}
+.engine-ask-done .ea-link{margin-inline-start:auto;font-size:11.5px;border:0;background:transparent;color:#7A2048;font-family:inherit;font-weight:700;cursor:pointer}
+
+/* ردیف‌های «منتظر تأیید» در پنل تحلیل */
+.analysis-wait-rows{padding:0 16px 12px}
+.analysis-wait-rows table{width:100%;border-collapse:collapse;font-size:12.5px}
+.analysis-wait-rows th{text-align:right;color:#8A7A66;font-weight:600;padding:6px 10px;background:#FBF1DC;font-size:11.5px}
+.analysis-wait-rows td{padding:7px 10px;border-top:1px solid #F0E3C4;color:#6B5A4A}
+.analysis-wait-rows td.analysis-gap{color:#B4740E;font-weight:800;font-size:15px;letter-spacing:2px}

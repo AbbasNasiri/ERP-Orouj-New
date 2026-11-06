@@ -1,0 +1,42 @@
+.workflow-box { display: flex; flex-direction: column; gap: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #e3d6bc; border-radius: 12px; background: #fffdf8; color: #2b2320; font-size: 13px; line-height: 1.9; }
+.workflow-box p { margin: 0; }
+.workflow-field { font-weight: 600; }
+.workflow-field input, .workflow-field select, .workflow-field textarea { box-sizing: border-box; width: 100%; padding: 4px 9px; border: 1px solid #cbbda7; border-radius: var(--psx-radius-field); font-size: var(--psx-fs-body); background: #fff; color: #2b2320; font-family: inherit; }
+.workflow-check { display: flex; align-items: flex-start; gap: 8px; }
+.workflow-check input { margin-top: 7px; flex-shrink: 0; }
+.workflow-button { font-family: inherit; padding: 9px 14px; border-radius: 8px; border: 1px solid transparent; background: #7a2048; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
+.workflow-button:disabled { opacity: .55; cursor: default; }
+.workflow-danger { background: #b3261e; }
+.workflow-link { color: #7a2048; background: transparent; border: none; font-family: inherit; text-decoration: underline; cursor: pointer; padding: 5px 0; text-align: right; }
+.workflow-group { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #e3d6bc; padding-top: 12px; }
+.workflow-shortage, .workflow-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.workflow-shortage { padding: 12px; background: #fbf0dc; border-radius: 8px; }
+.workflow-error { color: #b3261e; font-weight: 600; }
+.workflow-success { color: #246529; }
+.workflow-notifications { position: relative; font-size: 13px; color: #2b2320; }
+.workflow-notice-list { position: absolute; top: calc(100% + 8px); left: 0; width: min(420px,80vw); max-height: 420px; overflow-y: auto; background: white; border: 1px solid #e3d6bc; box-shadow: 0 8px 24px #0002; z-index: 30; border-radius: 10px; padding: 12px; }
+.workflow-notice { padding: 10px; border-bottom: 1px solid #e3d6bc; line-height: 1.8; }
+.workflow-notice p { margin: 4px 0; }
+.workflow-notice small { display: block; }
+.workflow-box :focus-visible, .workflow-notifications :focus-visible { outline: 3px solid #c9a227; outline-offset: 3px; }
+
+/* اصلاحات ۹ بند ۷ — چشمک اعلان: حلقهٔ دور زنگ و نوارِ نامهٔ بالای صفحه.
+   متن و جای عناصر تکان نمی‌خورد؛ فقط حلقه و روشن/خاموش شدن کادر. */
+.notification-icon { position: relative; display: inline-grid; place-items: center; width: 30px; height: 30px; border: 1px solid #ffffff40; border-radius: 8px; background: #ffffff1f; color: #fff; }
+.notification-ring { position: absolute; inset: -3px; border-radius: 11px; border: 2px solid #f4cf75; opacity: 0; }
+.has-unread .notification-ring { animation: notice-ring-pulse 1.8s ease-out infinite; }
+.notification-count { position: absolute; top: -7px; right: -7px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: #b3261e; color: #fff; font-size: 10px; font-weight: 800; line-height: 1; display: grid; place-items: center; }
+.notice-flash-banner { display: flex; align-items: center; gap: 8px; flex-shrink: 0; width: 100%; padding: 9px 22px; border: 0; border-bottom: 1px solid #722444; background: #fdf1f3; color: #722444; font-family: inherit; font-size: 12px; font-weight: 600; text-align: right; cursor: pointer; animation: notice-banner-flash 1.8s ease-in-out infinite; }
+.notice-flash-banner span { flex: 1; }
+.stale-banner { display: flex; align-items: center; gap: 8px; flex-shrink: 0; width: 100%; max-width: 100vw; box-sizing: border-box; padding: 9px 22px; border-bottom: 1px solid #a4443a; background: #fff4f2; color: #8a2b20; font-size: 12px; font-weight: 600; text-align: right; line-height: 1.7; }
+.stale-banner span { flex: 1; }
+.stale-banner button { border: 1px solid currentColor; background: transparent; color: inherit; font: inherit; font-weight: 700; border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+/* بند پ: خبرِ تغییرِ ایستگاهِ دیگر — آبی، بی‌وقفه، و فقط با کلیکِ اپراتور تازه می‌شود. */
+.live-banner { display: flex; align-items: center; gap: 8px; flex-shrink: 0; width: 100%; max-width: 100vw; box-sizing: border-box; padding: 9px 22px; border-bottom: 1px solid #2b5f8a; background: #eef5fb; color: #1d4568; font-size: 12px; font-weight: 600; text-align: right; line-height: 1.7; }
+.live-banner span { flex: 1; }
+.live-banner button { border: 1px solid currentColor; background: transparent; color: inherit; font: inherit; font-weight: 700; border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+.live-banner-action { background: #1d4568 !important; color: #fff !important; }
+@keyframes notice-ring-pulse { 0% { opacity: .9; transform: scale(.9); } 70%, 100% { opacity: 0; transform: scale(1.28); } }
+@keyframes notice-banner-flash { 0%, 100% { background: #fdf1f3; color: #722444; } 45% { background: #722444; color: #fff; } }
+@media (prefers-reduced-motion:reduce) { .has-unread .notification-ring, .notice-flash-banner { animation: none; } .notice-flash-banner { background: #fdf1f3; color: #722444; } }
+@media(max-width: 1100px) { .workflow-shortage, .workflow-grid { grid-template-columns: minmax(0,1fr); } }

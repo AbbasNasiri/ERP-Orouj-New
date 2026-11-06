@@ -1,0 +1,18 @@
+.official-invoice { font-size:10px; line-height:1.45; }
+.official-invoice-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px; }
+.official-invoice-heading h1 { font-size:18px; margin:0; }
+.official-invoice-heading > div { min-width:170px; }
+.official-tax-reference { border:1px solid #333; padding:4px 8px; margin-bottom:5px; }
+.official-party { border:1px solid #333; margin-bottom:5px; }
+.official-party h2 { font-size:11px; margin:0; padding:2px 8px; border-bottom:1px solid #333; text-align:center; }
+.official-party-row { display:flex; flex-wrap:wrap; gap:2px 18px; padding:2px 8px; }
+.official-party-name,.official-party-address { flex:1; }
+.official-invoice-subject { margin:5px 0; }
+.official-invoice-lines th,.official-invoice-lines td { border:1px solid #333; padding:3px; font-size:9.5px; text-align:center; vertical-align:middle; }
+.official-invoice-lines td.official-description { text-align:right; }
+.official-invoice-lines td:nth-child(2) { white-space:nowrap; font-variant-numeric:tabular-nums; direction:ltr; unicode-bidi:plaintext; }
+.official-invoice-lines tfoot th { font-weight:800; }
+.official-invoice-closing p { margin:3px 0; }
+.official-signatures { display:flex; justify-content:space-around; gap:25px; margin:16px 0 6px; }
+.official-signatures span { border-top:1px solid #333; text-align:center; padding-top:5px; width:35%; }
+.official-invoice-note { font-size:9px; }

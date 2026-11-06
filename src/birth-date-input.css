@@ -1,0 +1,6 @@
+.birth-date-input { display: flex; flex-direction: column; min-width: 0; }
+.birth-date-field { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid #d9d0ca; background: #fff; }
+.birth-date-field[aria-invalid="true"] { border-color: #b3261e !important; }
+.birth-date-input small { margin-top: 3px; font-size: var(--psx-fs-micro); color: #665a60; overflow-wrap: anywhere; }
+.birth-date-input small:empty { display: none; }
+.birth-date-input .birth-date-error { color: #b3261e; font-weight: 600; }

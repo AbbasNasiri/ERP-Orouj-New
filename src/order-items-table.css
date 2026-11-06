@@ -1,0 +1,64 @@
+/* Rev9 بند ۱۰: multi-item order output as one dense spreadsheet row per item.
+   Same visual grammar as .quote-table so the whole system reads as one design. */
+.oit { margin: 6px 0 12px; }
+.oit-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 6px; }
+.oit-zoom { flex:none; border:1px solid #cdbfa9; border-radius:var(--psx-radius-control); background:#fff; color:#5b4a3a; font:inherit; font-size:var(--psx-fs-micro); font-weight:var(--psx-fw-title); padding:4px 12px; cursor:pointer; }
+.oit-zoom[aria-pressed="true"] { background:#7a2048; border-color:#7a2048; color:#fff; }
+.oit-bari { color:#63594f; font-size:var(--psx-fs-micro); line-height:1.6; }
+/* کارفرما (۱۴۰۵/۰۸/۰۳): اسکرول افقی باید بماند — با باز شدن «جزئیات» هم به اول و هم به آخر لیست می‌رسیم. */
+.oit-scroll { min-width:0; max-width:100%; overflow-x:auto; border:1px solid #e7ddca; border-radius:8px; background:#fff; }
+.ui-modal.is-zoom { width:100%; max-width:none; height:calc(100dvh - 44px); }
+.oit-table { width:100%; min-width:1680px; border-collapse:collapse; table-layout:fixed; font-size:var(--psx-fs-label); line-height:1.7; color:#2b2320; }
+.oit-table caption { text-align:right; color:#63594f; font-size:var(--psx-fs-micro); padding:0 0 6px; }
+.oit-table th,.oit-table td { border-bottom:1px solid #e7ddca; border-left:1px solid #f0e7d6; padding:4px 5px; vertical-align:top; text-align:right; }
+/* کارفرما: «لیبل ستون‌ها وسط باشه نه سمت راست» */
+.oit-table > thead th { position:sticky; top:0; z-index:1; background:#f6f0e4; color:#5b4a3a; font-size:var(--psx-fs-label); font-weight:var(--psx-fw-title); white-space:normal; line-height:1.5; text-align:center; vertical-align:middle; overflow-wrap:anywhere; }
+.oit-table tbody th[scope="row"] { font-weight:var(--psx-fw-title); white-space:nowrap; background:#fbf7ee; text-align:center; }
+/* فقط فیلدهای خودِ ردیف قلم؛ خانه‌های جزئیات داخل برچسب oit-dfield می‌نشینند. */
+.oit-table > tbody > tr > td > input,.oit-table > tbody > tr > td > select { width:100%; min-width:0; box-sizing:border-box; border:1px solid #cdbfa9; border-radius:var(--psx-radius-control); padding:3px 6px; font:inherit; font-weight:var(--psx-fw-text); color:#2b2320; background:#fff; }
+.oit-table input[type="number"] { text-align:right; }
+.oit-table tbody tr:hover td { background:#fdfaf3; }
+.oit-table tr.oit-open td,.oit-table tr.oit-open th { background:#fbf1df; }
+.oit-table tr.oit-cover th[scope="row"] { background:#f3e7d8; color:#7a2048; }
+.oit-na { color:#a89684; }
+.oit-static { display:block; color:#4c4137; font-weight:var(--psx-fw-text); line-height:1.6; overflow-wrap:anywhere; }
+.oit-status { display:inline-block; border-radius:var(--psx-radius-pill); padding:1px 8px; font-size:var(--psx-fs-micro); font-weight:var(--psx-fw-title); white-space:nowrap; }
+.oit-ok { background:#e4f2e6; color:#27652d; }
+.oit-warn { background:#fff0d1; color:#8a5a06; }
+.oit-idle { background:#f1efeb; color:#5b4a3a; }
+.oit-flag { display:block; color:#9e2424; font-size:var(--psx-fs-micro); font-weight:var(--psx-fw-title); }
+.oit-actions { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+.oit-cover-toggle { display:inline-flex; align-items:center; gap:3px; border:1px solid #cdbfa9; border-radius:var(--psx-radius-control); padding:2px 6px; background:#fff; color:#5b4a3a; font-size:var(--psx-fs-micro); font-weight:var(--psx-fw-title); cursor:pointer; }
+.oit-cover-toggle input { margin:0; }
+.oit-detail { flex:none; border:1px solid #cdbfa9; border-radius:var(--psx-radius-control); background:#fff; color:#5b4a3a; font:inherit; font-size:var(--psx-fs-micro); font-weight:var(--psx-fw-title); padding:3px 8px; cursor:pointer; }
+.oit-detail:hover { border-color:#7a2048; color:#7a2048; }
+.oit-remove { flex:none; display:grid; place-items:center; width:26px; height:26px; border:1px solid #dfc2c2; border-radius:6px; background:#fff; color:#9e2424; cursor:pointer; }
+.oit-remove:hover { background:#fdecec; }
+/* ردیف جزئیات: دقیقاً همان ۱۷ ستون، هر مقدار زیر ستون خودش و با عنوان خودش */
+.oit-detail-row > td { background:#fbf6ec; padding:7px 6px; border-bottom:1px solid #e7ddca; border-top:1px dashed #d9c9ad; }
+.oit-detail-row.oit-cover > td { background:#f7efe4; }
+.oit-dv { display:block; font-size:var(--psx-fs-micro); line-height:1.5; color:#4c4137; margin-bottom:3px; }
+.oit-dt { display:block; color:#8b7a67; font-size:var(--psx-fs-micro); font-weight:var(--psx-fw-title); }
+.oit-dvv { display:block; font-weight:var(--psx-fw-title); overflow-wrap:anywhere; }
+.oit-dfield { display:block; margin-top:4px; }
+.oit-dfield > .oit-dt { margin-bottom:2px; }
+.oit-dfield :is(input,select) { width:100%; min-width:0; box-sizing:border-box; border:1px solid #cdbfa9; border-radius:var(--psx-radius-control); padding:2px 5px; font:inherit; font-size:var(--psx-fs-micro); background:#fff; color:#2b2320; }
+.oit-dq { display:flex; align-items:center; gap:3px; }
+.oit-dq bdi { flex:none; color:#8b7a67; font-size:var(--psx-fs-micro); }
+.oit-recalc,.oit-more { border:1px solid #7a2048; border-radius:var(--psx-radius-control); background:#fff; color:#7a2048; font:inherit; font-size:var(--psx-fs-micro); font-weight:var(--psx-fw-title); padding:3px 8px; cursor:pointer; }
+.oit-recalc:hover,.oit-more:hover { background:#7a2048; color:#fff; }
+.oit-add { border:1px solid #7a2048; border-radius:var(--psx-radius-field); background:#fff; color:#7a2048; font:inherit; font-weight:var(--psx-fw-title); padding:4px 10px; cursor:pointer; }
+.oit-table tfoot th,.oit-table tfoot td { background:#f6f0e4; font-weight:var(--psx-fw-title); border-bottom:0; }
+.oit-total { color:#5b4a3a; }
+/* column widths: ردیف، شرح، نوع، قطع، صفحات، کاغذ متن، گرماژ، رنگ متن، کاغذ جلد، گرماژ جلد، سلفون، صحافی، روش چاپ، تیراژ، واحد، وضعیت، عملیات */
+.oit-table > thead th:nth-child(1){width:46px}.oit-table > thead th:nth-child(2){width:170px}.oit-table > thead th:nth-child(3){width:130px}.oit-table > thead th:nth-child(4){width:96px}
+.oit-table > thead th:nth-child(5){width:112px}.oit-table > thead th:nth-child(6){width:150px}.oit-table > thead th:nth-child(7){width:66px}.oit-table > thead th:nth-child(8){width:118px}
+.oit-table > thead th:nth-child(9){width:150px}.oit-table > thead th:nth-child(10){width:70px}.oit-table > thead th:nth-child(11){width:130px}.oit-table > thead th:nth-child(12){width:150px}
+.oit-table > thead th:nth-child(13){width:150px}.oit-table > thead th:nth-child(14){width:82px}.oit-table > thead th:nth-child(15){width:92px}.oit-table > thead th:nth-child(16){width:96px}
+.oit-table > thead th:nth-child(17){width:118px}
+@media(max-width:900px){.oit-table{font-size:12px}}
+
+.oit-addstock { margin-top:4px; padding:2px 8px; border:1px dashed #8a6d3b; border-radius:var(--psx-radius-control); background:transparent; color:#6b4f1d; font:inherit; font-size:11px; cursor:pointer; }
+.oit-nostock { display:block; margin-top:4px; color:#9a3412; font-size:11px; }
+
+.oit-sizewarn{display:block;margin-top:4px;padding:4px 8px;border-radius:6px;background:#fff4e5;color:#8a4b00;border:1px solid #f0b866;font-size:12px;line-height:1.6}

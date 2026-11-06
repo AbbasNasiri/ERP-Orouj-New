@@ -1,0 +1,93 @@
+/* بند ۱ — یک مقیاس تایپ برای کل صفحهٔ نمایش.
+   همهٔ قواعد داخل @media screen هستند و فقط به پوستهٔ برنامه (.workbench-shell / .ui-modal)
+   تنگی‌اند؛ پیش‌نمایش چاپ در .print-root (portal جدا از body) می‌ماند، پس تایپوگرافی
+   نامه و فاکتور کاغذی دست‌نخورده است. */
+
+:root {
+  --psx-fs-micro: 11px;
+  --psx-fs-label: 12px;
+  --psx-fs-body: 13px;
+  --psx-fs-head: 14px;
+  --psx-fs-title: 16px;
+  --psx-fs-page: 20px;
+  --psx-fs-num: 22px;
+  --psx-fw-text: 400;
+  --psx-fw-medium: 500;
+  --psx-fw-strong: 600;
+  --psx-fw-title: 700;
+  --psx-fw-num: 800;
+  --psx-fw-heavy: 800;
+  --psx-radius-control: 6px;
+  --psx-radius-field: 8px;
+  --psx-radius-panel: 12px;
+  --psx-radius-pill: 999px;
+}
+
+@media screen {
+  .printshop-desktop, .workbench-shell, .ui-modal, .ui-exit-dialog { font-size: var(--psx-fs-body); line-height: 1.8; }
+
+  /* عنوان صفحه و عنوان مودال */
+  .workbench-shell .workbench-header h1 { font-size: var(--psx-fs-page) !important; font-weight: var(--psx-fw-title) !important; line-height: 1.5 !important; }
+  .ui-modal-header h2, .ui-exit-dialog h2 { font-size: var(--psx-fs-title) !important; font-weight: var(--psx-fw-title) !important; }
+  .workbench-shell .workbench-eyebrow { font-size: var(--psx-fs-micro) !important; font-weight: var(--psx-fw-medium) !important; }
+  .workbench-shell .workbench-breadcrumb, .workbench-shell .workbench-statusbar { font-size: var(--psx-fs-micro) !important; font-weight: var(--psx-fw-text) !important; }
+
+  /* تیترهای درجه‌دوم داخل محتوا */
+  .workbench-content :is(h2):not(.a4-sheet *):not(.a5-sheet *):not(.official-invoice *), .ui-modal :is(h2):not(.a4-sheet *):not(.a5-sheet *):not(.official-invoice *) { font-size: var(--psx-fs-title) !important; font-weight: var(--psx-fw-title) !important; }
+  .workbench-content :is(h3, h4):not(.a4-sheet *):not(.a5-sheet *):not(.official-invoice *), .ui-modal :is(h3, h4):not(.a4-sheet *):not(.a5-sheet *):not(.official-invoice *) { font-size: var(--psx-fs-head) !important; font-weight: var(--psx-fw-title) !important; }
+  [data-section-title], .ui-modal [data-section-title] { font-size: var(--psx-fs-head) !important; font-weight: var(--psx-fw-title) !important; }
+  [data-section-title="small"], .ui-modal [data-section-title="small"] { font-size: var(--psx-fs-label) !important; font-weight: var(--psx-fw-title) !important; }
+
+  /* درخت منوی کناری */
+  .workbench-navgroup-title { font-size: var(--psx-fs-title) !important; font-weight: var(--psx-fw-title) !important; }
+  .workbench-navlabel { font-size: var(--psx-fs-body) !important; font-weight: var(--psx-fw-medium) !important; }
+  .workbench-navitem.is-active .workbench-navlabel { font-weight: var(--psx-fw-strong) !important; }
+  .workbench-navchildren .workbench-navlabel { font-size: var(--psx-fs-label) !important; font-weight: var(--psx-fw-text) !important; }
+  .workbench-navtoggle { font-size: var(--psx-fs-micro) !important; font-weight: var(--psx-fw-strong) !important; }
+  .workbench-logout { font-size: var(--psx-fs-label) !important; font-weight: var(--psx-fw-medium) !important; }
+  .workbench-user strong { font-size: var(--psx-fs-body) !important; font-weight: var(--psx-fw-heavy) !important; }
+  .workbench-user div > span { font-size: var(--psx-fs-micro) !important; }
+
+  /* تب‌ها */
+
+  /* فرم‌ها */
+  .workbench-content .psx-field-label, .ui-modal .psx-field-label { font-size: var(--psx-fs-label) !important; font-weight: var(--psx-fw-strong) !important; }
+  .workbench-content input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]), .workbench-content select, .workbench-content textarea,
+  .ui-modal input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]), .ui-modal select, .ui-modal textarea { font-size: var(--psx-fs-body) !important; font-weight: var(--psx-fw-text) !important; border-radius: var(--psx-radius-field) !important; }
+  .workbench-content .jalali-quick button, .ui-modal .jalali-quick button { font-size: var(--psx-fs-micro) !important; font-weight: var(--psx-fw-medium) !important; }
+
+  /* دکمه‌ها — روی برگهٔ چاپ (A4/A5/فاکتور رسمی) دست نمی‌بریم */
+  .workbench-content :is(button):not(:is(.a4-sheet, .a5-sheet, .official-invoice, .print-source, .print-pages) *),
+  .workbench-header :is(button):not(:is(.a4-sheet, .a5-sheet, .official-invoice) *),
+  .workbench-tabstrip :is(button):not(:is(.a4-sheet, .a5-sheet, .official-invoice) *),
+  .ui-modal :is(button):not(:is(.a4-sheet, .a5-sheet, .official-invoice, .print-source, .print-pages) *),
+  .ui-exit-dialog button, .printshop-desktop .workflow-button { font-size: var(--psx-fs-body) !important; font-weight: var(--psx-fw-strong) !important; }
+  .workbench-content :is(table button):not(:is(.a4-sheet, .a5-sheet, .official-invoice) *), .ui-modal :is(table button):not(:is(.a4-sheet, .a5-sheet, .official-invoice) *) { font-size: var(--psx-fs-micro) !important; font-weight: var(--psx-fw-strong) !important; }
+  .workbench-statusbar button { font-size: var(--psx-fs-micro) !important; font-weight: var(--psx-fw-medium) !important; }
+  .ui-modal button.ui-modal-close { font-size: var(--psx-fs-title) !important; font-weight: var(--psx-fw-text) !important; }
+
+  /* تب‌ها (بعد از قاعدهٔ کلی دکمه تا اندازهٔ خودش را بگیرد) */
+  .workbench-tabstrip :is(.workbench-tab):not(:is(.a4-sheet, .a5-sheet, .official-invoice) *),
+  .workbench-subtabstrip :is(.workbench-tab):not(:is(.a4-sheet, .a5-sheet, .official-invoice) *) { font-size: var(--psx-fs-label) !important; font-weight: var(--psx-fw-medium) !important; }
+  .workbench-tabstrip .workbench-tabwrap.is-active .workbench-tab,
+  .workbench-subtabstrip .workbench-tabwrap.is-active .workbench-tab { font-weight: var(--psx-fw-strong) !important; }
+  .workbench-tabstrip :is(.workbench-tab-close):not(:is(.a4-sheet, .a5-sheet, .official-invoice) *),
+  .workbench-subtabstrip :is(.workbench-tab-close):not(:is(.a4-sheet, .a5-sheet, .official-invoice) *) { font-size: var(--psx-fs-title) !important; font-weight: var(--psx-fw-text) !important; }
+
+  /* جدول‌های روی صفحه: سرستون ریز و bold، بدنه یک اندازه — بدنهٔ نامه و فاکتور چاپی مستثنی است */
+  .workbench-content :is(th):not(:is(.a4-sheet, .a5-sheet, .official-invoice, .print-source, .print-pages, .financial-print-table) *),
+  .ui-modal :is(th):not(:is(.a4-sheet, .a5-sheet, .official-invoice, .print-source, .print-pages, .financial-print-table) *) { font-size: var(--psx-fs-label) !important; font-weight: var(--psx-fw-title) !important; }
+  .workbench-content :is(td):not(:is(.a4-sheet, .a5-sheet, .official-invoice, .print-source, .print-pages, .financial-print-table) *),
+  .ui-modal :is(td):not(:is(.a4-sheet, .a5-sheet, .official-invoice, .print-source, .print-pages, .financial-print-table) *) { font-size: var(--psx-fs-label) !important; }
+  .workbench-content :is(table):not(:is(.a4-sheet, .a5-sheet, .official-invoice, .print-source, .print-pages, .financial-print-table) *),
+  .ui-modal :is(table):not(:is(.a4-sheet, .a5-sheet, .official-invoice, .print-source, .print-pages, .financial-print-table) *) { font-size: var(--psx-fs-label); }
+
+  /* کارت شاخص، نشان و پیل */
+  .psx-kpi-label { font-size: var(--psx-fs-label) !important; font-weight: var(--psx-fw-strong) !important; }
+  .psx-kpi-value { font-size: var(--psx-fs-num) !important; font-weight: var(--psx-fw-num) !important; }
+  .psx-badge { font-size: var(--psx-fs-micro) !important; font-weight: var(--psx-fw-strong) !important; }
+  .psx-hint { font-size: var(--psx-fs-micro) !important; font-weight: var(--psx-fw-text) !important; }
+
+  /* پنل‌های تحلیلی */
+  .analysis-panel-header > span, .analysis-footnote, .analysis-warnings, .analysis-details { font-size: var(--psx-fs-micro) !important; }
+}

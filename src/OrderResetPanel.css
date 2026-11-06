@@ -1,0 +1,17 @@
+.order-reset-panel { max-width: 1040px; margin: 0 auto; padding: 20px; line-height: 1.9; }
+.order-reset-panel h2 { margin-top: 0; }
+.order-reset-warning { border: 1px solid #a84929; border-radius: 10px; padding: 14px 18px; margin: 16px 0; background: #fff8f3; color: #6e2d18; }
+.order-reset-panel form { margin-top: 20px; }
+.order-reset-panel label { display: grid; gap: 8px; margin: 18px 0; }
+.order-reset-panel input:not([type="checkbox"]), .order-reset-panel textarea { width: 100%; padding: 10px; box-sizing: border-box; font: inherit; }
+.order-reset-panel textarea { min-height: 90px; resize: vertical; }
+.order-reset-panel .order-reset-ack { display: flex; align-items: flex-start; gap: 10px; }
+.order-reset-ack input { margin-top: 8px; flex: none; }
+.order-reset-panel dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.order-reset-panel dl div { padding: 10px 14px; border: 1px solid #d6cbbb; border-radius: 8px; }
+.order-reset-panel dd { margin: 4px 0 0; font-weight: bold; font-size: 22px; }
+.order-reset-error { color: #9b1c20; background: #fff0f0; border: 1px solid #e7b1b3; padding: 12px; border-radius: 8px; }
+.order-reset-panel button { padding: 10px 18px; font: inherit; border-radius: 8px; cursor: pointer; }
+.order-reset-panel button:disabled { cursor: default; opacity: .55; }
+.order-reset-panel .order-reset-submit { background: #982b2b; color: #fff; border: 1px solid #982b2b; }
+.order-reset-backup { display: inline-block; overflow-wrap: anywhere; max-width: 100%; direction: ltr; }

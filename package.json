@@ -1,0 +1,55 @@
+{
+  "name": "print-shop-desktop",
+  "productName": "سامانه چاپ و نشر",
+  "version": "1.9.8-Rev17-coa",
+  "description": "Print shop order, inventory and finance manager (desktop)",
+  "main": "electron/main.js",
+  "author": "Print Shop",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite build && electron .",
+    "dist": "vite build && electron-builder --win portable",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "better-sqlite3": "11.10.0",
+    "lucide-react": "^0.383.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "vite": "^5.4.0"
+  },
+  "build": {
+    "appId": "com.printshop.desktop",
+    "productName": "PrintShop",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "portable": {
+      "artifactName": "PrintShop-${version}.exe"
+    },
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**",
+      "electron/voice-engine.js"
+    ]
+  }
+}

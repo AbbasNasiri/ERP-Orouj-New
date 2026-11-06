@@ -1,0 +1,37 @@
+.print-root { position:fixed; inset:0; z-index:1000; overflow:auto; padding:16px; background:#fff; color:#000; direction:rtl; font-family:'Vazirmatn',Tahoma,Arial,sans-serif; }
+.print-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:0 auto 16px; max-width:210mm; }
+.print-toolbar button,.print-toolbar select { padding:6px 12px; border:1px solid #777; border-radius:4px; background:#fff; color:#000; cursor:pointer; }
+.print-toolbar button:disabled { opacity:.5; cursor:wait; }
+.print-toolbar label { display:flex; align-items:center; gap:6px; font-size:12px; }
+.print-toolbar [role=status] { flex:1; font-size:12px; }
+.print-source { position:absolute; top:0; left:-100000px; width:190mm; visibility:hidden; pointer-events:none; font-size:11px; line-height:1.7; }
+.print-source[data-paper=A5] { width:128mm; }
+.print-root[data-orientation=landscape][data-paper=A4] .print-toolbar { max-width:297mm; }
+.print-source[data-orientation=landscape][data-paper=A4] { width:277mm; }
+.print-source[data-orientation=landscape][data-paper=A5] { width:190mm; }
+.print-pages { display:flex; flex-direction:column; align-items:center; gap:16px; }
+.print-page { width:210mm; height:297mm; box-sizing:border-box; padding:10mm; margin:0; background:#fff; color:#000; flex-shrink:0; font-size:11px; line-height:1.7; direction:rtl; outline:1px solid #ddd; }
+.print-pages[data-paper=A5] .print-page { width:148mm; height:210mm; }
+.print-pages[data-orientation=landscape][data-paper=A4] .print-page { width:297mm; height:210mm; }
+.print-pages[data-orientation=landscape][data-paper=A5] .print-page { width:210mm; height:148mm; }
+.print-page-header { height:6mm; box-sizing:border-box; font-size:10px; line-height:5mm; text-align:left; direction:rtl; color:#000; white-space:nowrap; }
+.print-page-header bdi { unicode-bidi:isolate; }
+.print-page-content { height:calc(100% - 6mm); display:flow-root; }
+.print-source *, .print-page-content * { background:none !important; background-image:none !important; box-shadow:none !important; text-shadow:none !important; color:#000 !important; box-sizing:border-box; min-width:0 !important; max-width:100%; overflow:visible !important; overflow-wrap:anywhere; }
+.print-source .a4-sheet,.print-source .a5-sheet,.print-page-content .a4-sheet,.print-page-content .a5-sheet { width:100% !important; min-height:0 !important; height:auto !important; margin:0 !important; padding:0 !important; display:block !important; box-shadow:none !important; }
+.print-source table,.print-page-content table { width:100% !important; table-layout:fixed; border-collapse:collapse; }
+.print-source th,.print-source td,.print-page-content th,.print-page-content td { white-space:normal; overflow-wrap:anywhere; }
+.print-source[data-paper=A5] .financial-print-table :is(th,td),.print-pages[data-paper=A5] .financial-print-table :is(th,td) { font-size:11px !important; padding:4px !important; }
+.print-source img,.print-page-content img { object-fit:contain; }
+.print-source [data-print-checked=true],.print-page-content [data-print-checked=true] { position:relative; }
+.print-source [data-print-checked=true]::after,.print-page-content [data-print-checked=true]::after { content:'✓'; position:absolute; inset:-4px 0 0; font-size:11px; line-height:14px; text-align:center; }
+@media print {
+  html,body { width:auto !important; height:auto !important; min-height:0 !important; margin:0 !important; padding:0 !important; overflow:visible !important; background:#fff !important; }
+  body > :not(.print-root) { display:none !important; }
+  .print-root { position:static !important; inset:auto !important; margin:0 !important; padding:0 !important; height:auto !important; overflow:visible !important; background:#fff !important; }
+  .no-print,.print-source { display:none !important; }
+  .print-pages { display:block !important; margin:0 !important; padding:0 !important; }
+  .print-page { margin:0 !important; outline:none !important; box-shadow:none !important; break-after:page; page-break-after:always; break-inside:avoid; page-break-inside:avoid; }
+  .print-page:last-child { break-after:auto; page-break-after:auto; }
+  .print-page-content { overflow:visible; }
+}

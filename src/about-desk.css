@@ -1,0 +1,5 @@
+.about-desk { max-width: 720px; padding: 22px 26px; border: 1px solid var(--desk-line, #e6d6c4); border-radius: 14px; background: #fffdf8; color: #2c1a24; line-height: 2; }
+.about-desk h2 { margin: 0 0 4px; font-size: 20px; }
+.about-desk-version { margin: 0 0 14px; color: var(--desk-muted, #8a6f7d); font-size: var(--psx-fs-micro); }
+.about-desk p { margin: 0 0 10px; font-size: 14px; }
+.about-desk a { color: #8d3b60; }

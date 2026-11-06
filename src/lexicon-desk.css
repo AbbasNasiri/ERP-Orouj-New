@@ -1,0 +1,18 @@
+.lexicon-desk { display:flex; flex-direction:column; gap:14px; }
+.lexicon-desk .document-panel { padding:16px 18px; gap:11px; }
+.lexicon-desk .document-panel h3 { margin-top:2px; }
+.lexicon-grid th { font-size:12px; padding:8px 10px; white-space:nowrap; }
+.lexicon-grid td { padding:5px 8px; }
+.lexicon-grid td input { min-height:32px; padding:4px 9px; }
+.lexicon-grid td input[type=checkbox] { width:18px; height:18px; min-height:0; padding:0; margin:0 auto; display:block; }
+.lexicon-grid td:last-child { width:6%; }
+.lexicon-flag { text-align:center; width:14%; }
+.lexicon-add input { flex:1 1 220px; max-width:330px; }
+.lexicon-desk .document-danger { padding:4px 10px; font-size:12px; }
+/* خانه روی زمینهٔ کرمِ پنل بی‌رنگ می‌نشیند و با عبور یا تمرکز سفید می‌شود؛ کادر از قواعد سراسری می‌آید. */
+.lexicon-grid td input:not([type=checkbox]) { background:transparent; }
+.lexicon-grid td input:not([type=checkbox]):hover, .lexicon-grid td input:not([type=checkbox]):focus { background:#fff; }
+/* خانهٔ نام سراسر جدول را نمی‌گیرد؛ جدول مرجع باید مثل شیبان به اندازهٔ محتوا باشد. */
+.lexicon-grid td input:not([type=checkbox]):not([dir]) { max-width:460px; }
+.lexicon-grid td input[dir=ltr] { width:130px; }
+@media(max-width:760px){.lexicon-desk .document-panel{padding:12px}.lexicon-grid td{padding:4px}}
